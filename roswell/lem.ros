@@ -1,0 +1,32 @@
+#!/bin/sh
+#|-*- mode:lisp -*-|#
+#|
+exec ros -m lem -Q -- $0 "$@"
+|#
+(defpackage :ros.script.lem
+  (:use :cl))
+(in-package :ros.script.lem)
+
+(defun usage ()
+  (format t "~{~A~%~}" '("usage: lem.ros [OPTION]... [FILE]..."
+                         #+sbcl "-b --build"
+                         #+sbcl "-db --debug-build"
+                         "-d --debug"
+                         "-h --help")))
+
+(defun main (&rest argv)
+  (declare (ignorable argv))
+  (ros:unsetenv "SBCL_HOME")
+  (let (debug-flag
+        (filenames (cdr argv)))
+    (if (or (string= (first argv) "--debug")
+            (string= (first argv) "-d"))
+        (setq debug-flag t))
+    (when (or (string= "--help" (first argv))
+              (string= "-h" (first argv)))
+      (usage)
+      (return-from main))
+    (if debug-flag
+        (let ((lem::*program-name* "lem dbg"))
+          (apply #'lem:lem filenames))
+        (apply #'lem:lem filenames))))

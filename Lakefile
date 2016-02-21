@@ -1,0 +1,13 @@
+#|-*- mode:lisp -*-|#
+(in-package :cl-user)
+(defpackage :lake.user
+  (:use :cl :lake :cl-syntax)
+  (:shadowing-import-from :lake
+                          :directory))
+(in-package :lake.user)
+
+(use-syntax :interpol)
+
+(task "default" ()
+      (sh #?"ros -s lem -l aux.lisp dump output -f lem")
+      (sh #?"ros -l lem-setup.asd install lem-setup"))
